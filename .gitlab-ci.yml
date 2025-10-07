@@ -1,0 +1,26 @@
+stages:
+  - ui_test
+  - api_test
+
+selenium_ui:
+  stage: ui_test
+  image: python:3.9
+  before_script:
+    - apt-get update && apt-get install -y chromium chromium-driver
+    - pip install -r tests_scenario_ui/requirements.txt
+  script:
+    - pytest tests_scenario_ui --alluredir=tests_scenario_ui/rapport
+  artifacts:
+    when: always
+    paths:
+      - tests_scenario_ui/rapport
+
+postman_api:
+  stage: api_test
+  image: postman/newman:latest
+  script:
+    - newman run PostmanApiReqres/reqres-api-tests.json --reporters cli,junit --reporter-junit-export PostmanApiReqres/results.xml
+  artifacts:
+    when: always
+    paths:
+      - PostmanApiReqres/results.xml
